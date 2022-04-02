@@ -1,0 +1,23 @@
+version: "3"
+services:
+  user-management-system-backend:
+    image: user-management-system-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - user-management-system-mysql-network
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://user-management-system-mysql:3306/user_management_system?allowPublicKeyRetrieval=true&useSSL=false
+    depends_on:
+      - user-management-system-mysql
+
+  user-management-system-mysql:
+    image: mysql:latest
+    networks:
+      - user-management-system-mysql-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=user_management_system
+
+networks:
+  user-management-system-mysql-network:
