@@ -17,9 +17,9 @@ To run this project:
 ```
   cd ../spring
   docker pull mysql
-  docker pull jdk:18-oracle
+  docker pull openjdk:18-oracle
   mvn package
-  docker build -t user-management-system-backend
+  docker build -t user-management-system-backend .
   docker-compose up
 ```
 
