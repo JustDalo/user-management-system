@@ -4,6 +4,7 @@ import com.dalo.spring.dao.UserRepository;
 import com.dalo.spring.exception.ResourceNotFoundException;
 import com.dalo.spring.model.Country;
 import com.dalo.spring.model.User;
+import com.dalo.spring.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
