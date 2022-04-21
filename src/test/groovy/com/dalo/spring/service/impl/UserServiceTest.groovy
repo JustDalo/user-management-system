@@ -25,7 +25,7 @@ class UserServiceTest extends Specification {
             def resultListOfUsers = userService.getAllUsers()
         then:
             resultListOfUsers == users
-    }
+    } 
 
     def "createUser should return created user"() {
         given:
