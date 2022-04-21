@@ -16,7 +16,7 @@ class UserServiceTest extends Specification {
 
     def userService
 
-    def "getAllUsers should return all users user"() {
+    def "getAllUsers should return all users"() {
         given:
             def userRepository = Stub(UserRepository)
             userRepository.findAll() >> users
@@ -25,7 +25,19 @@ class UserServiceTest extends Specification {
             def resultListOfUsers = userService.getAllUsers()
         then:
             resultListOfUsers == users
-    } 
+    }
+
+    def "getUserById should return user with given id"() {
+        given:
+            def id = 1L
+            def userRepository = Stub(UserRepository)
+            userRepository.findById(id) >> Optional.of(users[0])
+            userService = new UserServiceImpl(userRepository)
+        when:
+            def resultUser = userService.getUserById(1L)
+        then:
+            resultUser == users[0]
+    }
 
     def "createUser should return created user"() {
         given:
