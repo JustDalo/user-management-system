@@ -14,7 +14,7 @@ class UserServiceImplSpockTest extends Specification {
 
     ]
 
-    def "create user should return created user"() {
+    def "getAllUsers should return all users user"() {
         given:
         def userDao = Mock(UserRepository)
         def userService = new UserServiceImpl(userDao);
@@ -22,5 +22,15 @@ class UserServiceImplSpockTest extends Specification {
         userService.getAllUsers()
         then:
         1 * userDao.findAll() >> users
+    }
+
+    def "createUser should return created user"() {
+        given:
+        def userDao = Mock(UserRepository)
+        def userService = new UserServiceImpl(userDao)
+        when:
+        userService.createUser(users[0], COUNTRY)
+        then:
+        1 * userDao.save(users[0]) >> users[0]
     }
 }
