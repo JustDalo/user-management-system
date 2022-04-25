@@ -1,4 +1,4 @@
-package com.dalo.spring.supporter;
+package com.dalo.spring.utils;
 
 import org.testcontainers.containers.MySQLContainer;
 
@@ -15,18 +15,5 @@ public class LocalhostMySqlContainer extends MySQLContainer<LocalhostMySqlContai
             container = new LocalhostMySqlContainer();
         }
         return container;
-    }
-
-    @Override
-    public void start() {
-        super.start();
-        System.setProperty("DB_URL", container.getJdbcUrl());
-        System.setProperty("DB_USERNAME", container.getUsername());
-        System.setProperty("DB_PASSWORD", container.getPassword());
-    }
-
-    @Override
-    public void stop() {
-
     }
 }

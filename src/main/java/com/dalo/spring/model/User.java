@@ -1,5 +1,6 @@
 package com.dalo.spring.model;
 
+import com.sun.istack.NotNull;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -20,16 +21,21 @@ public class User {
     @Column(name = "usr_id")
     private Long id;
     @Column(name = "usr_first_name")
+    @NotNull
     public String firstName;
     @Column(name = "usr_last_name")
+    @NotNull
     public String lastName;
     @Column(name = "usr_middle_name")
     public String middleName;
     @Column(name = "usr_sex")
+    @NotNull
     public String sex;
     @Column(name = "usr_phone_number")
+    @NotNull
     public String phoneNumber;
     @Column(name = "usr_email")
+    @NotNull
     public String email;
     @ManyToOne
     @JoinColumn(name="usr_country_id", referencedColumnName = "ctr_id")

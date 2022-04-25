@@ -7,33 +7,36 @@ import com.dalo.spring.model.User
 import com.dalo.spring.service.CountryService
 import com.dalo.spring.service.IPRequestService
 import com.dalo.spring.service.UserService
-import com.dalo.spring.supporter.LocalhostMySqlContainer
+import com.dalo.spring.utils.LocalhostMySqlContainer
+import com.dalo.spring.utils.TestPropertiesInitializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.json.JacksonTester
-import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
-import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.http.HttpStatus
 import org.testcontainers.containers.MySQLContainer
+import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
-import org.springframework.http.HttpStatus;
 import spock.lang.Specification
-import spock.mock.DetachedMockFactory
 
 import javax.servlet.http.HttpServletRequest
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 
-
-@WebMvcTest(controllers = [UserController])
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Testcontainers
+@ContextConfiguration(initializers = [TestPropertiesInitializer])
+@AutoConfigureMockMvc
 class UserCRUDControllerTest extends Specification {
+    @Shared
+    MySQLContainer mySqlContainer = LocalhostMySqlContainer.getInstance()
     @Autowired
     MockMvc mockMvc
     @Autowired
@@ -42,78 +45,160 @@ class UserCRUDControllerTest extends Specification {
     CountryService countryService
     @Autowired
     IPRequestService ipRequestService
+    @Autowired
+    UserRepository userRepository
+    @Autowired
+    CountryRepository countryRepository
 
-    private JacksonTester<User> jsonUsers;
+    private JacksonTester<User> jsonUsers
 
     private static final String BASE_PATH = "/api/users"
 
-    private static final Country COUNTRY =
-            new Country(1L, "CountryName")
-
-    def USERS = [
-        new User(1L, "Daniil", "Shyshla", "Valerevich", "male", "+375333450040", "@mail.ru", COUNTRY),
-        new User(2L, "Daniil", "Shyshlo", "Valerevich", "male", "+375333450040", "@mail.ru", COUNTRY),
-        new User(3L, "Daniil", "Shyshli", "Valerevich", "male", "+375333450040", "@mail.ru", COUNTRY)
-    ]
-
     def setup() {
-        JacksonTester.initFields(this, new ObjectMapper());
-    }
-    
-    def "UserController should return status 200 when getting user"() {
-        given:
-            userService.getUserById(1L) >> USERS[0]
-        when:
-            def response = mockMvc.perform(get(BASE_PATH + "/1")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andReturn()
-                    .getResponse()
-        then:
-            response.getStatus() == HttpStatus.OK.value()
+        JacksonTester.initFields(this, new ObjectMapper())
     }
 
-    def "UserController should return status 200 when getting all users"() {
+    def cleanup() {
+        userRepository.deleteAll()
+        countryRepository.deleteAll()
+    }
+
+    def "UserController findById should return status 200 OK when getting user"() {
         given:
-            userService.getAllUsers() >> USERS.toList()
+            User savedUser = createNewUser()
         when:
-        def response = mockMvc.perform(get(BASE_PATH)
+            def response = mockMvc.perform(get(BASE_PATH + "/${savedUser.getId()}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
         then:
             response.getStatus() == HttpStatus.OK.value()
-            jsonUsers.write(USERS[0]).getJson() == response.getContentAsString()
     }
 
-    def "UserController should return status CREATED when creating new user"() {
-        given:
-            def request = Mock(HttpServletRequest)
-            ipRequestService.getClientIP(request) >> "ip"
-            countryService.getCountryByIP("ip") >> COUNTRY
-            userService.createUser(USERS[0], COUNTRY) >> USERS[0]
+    def "UserController findById should return status 404 NOT FOUND when getting user that does not exist in database"() {
         when:
-        def response = mockMvc.perform(post(BASE_PATH).
-                contentType(MediaType.APPLICATION_JSON).content(jsonUsers.write(USERS[0]).getJson()))
+            def response = mockMvc.perform(get(BASE_PATH + "/0")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andReturn()
+                    .getResponse()
+        then:
+            response.getStatus() == HttpStatus.NOT_FOUND.value()
+    }
+
+    def "UserController findAll should return status 200 OK when getting all users"() {
+        given:
+            Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
+            userRepository.save(new User(
+                    firstName: "Danil",
+                    lastName: "Shyshla",
+                    middleName: "Valerevich",
+                    sex: "male",
+                    phoneNumber: "+375111111111",
+                    email: "@gmail.com",
+                    country: belarusCountry
+            ))
+            userRepository.save(new User(
+                    firstName: "Ivan",
+                    lastName: "Ivanov",
+                    middleName: "Ivanovich",
+                    sex: "male",
+                    phoneNumber: "+375000000000",
+                    email: "@gmail.com",
+                    country: belarusCountry
+            ))
+        when:
+            def response = mockMvc.perform(get(BASE_PATH)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
-                .getResponse();
+                .getResponse()
+        then:
+            response.getStatus() == HttpStatus.OK.value()
+    }
+
+    def "UserController createUser should return status 201 CREATED when creating new user"() {
+        given:
+            Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
+            def request = Mock(HttpServletRequest)
+            ipRequestService.getClientIP(request) >> null
+        when:
+        def response = mockMvc.perform(post(BASE_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUsers.write(new User(
+                        firstName: "Ivan",
+                        lastName: "Ivanov",
+                        middleName: "Ivanovich",
+                        sex: "male",
+                        phoneNumber: "+375000000000",
+                        email: "@gmail.com",
+                        country: belarusCountry
+                )).getJson()))
+                .andReturn()
+                .getResponse()
         then:
             response.getStatus() == HttpStatus.CREATED.value()
     }
 
-    @TestConfiguration
-    static class Config {
-        DetachedMockFactory detachedMockFactory = new DetachedMockFactory()
-        @Bean
-        UserService userService() {
-            return detachedMockFactory.Mock(UserService)
-        }
-        @Bean
-        CountryService countryService() {
-            return detachedMockFactory.Mock(CountryService)
-        }
-        @Bean
-        IPRequestService ipRequestService() {
-            return detachedMockFactory.Mock(IPRequestService)
-        }
+    def "UserController updateUser should return status 200 OK when user is updated"() {
+        given:
+            Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
+            def savedUser = userRepository.save(new User(
+                firstName: "Danil",
+                lastName: "Shyshla",
+                middleName: "Valerevich",
+                sex: "male",
+                phoneNumber: "+375111111111",
+                email: "@gmail.com",
+                country: belarusCountry
+            ))
+        when:
+            def response = mockMvc.perform(put(BASE_PATH + "/${savedUser.getId()}")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonUsers.write(new User(
+                            id: savedUser.getId(),
+                            firstName: "Daniil",
+                            lastName: "Shyshla",
+                            sex: "male",
+                            phoneNumber: "+375222222222",
+                            email: "@gmail.com",
+                            country: belarusCountry
+                    )).getJson()))
+                    .andReturn()
+                    .getResponse()
+        then:
+        response.getStatus() == HttpStatus.OK.value()
+    }
+
+    def "UserController deleteUser should return status 200 OK when user is deleted"() {
+        given:
+            User savedUser = createNewUser()
+        when:
+            def response = mockMvc.perform(delete(BASE_PATH + "/${savedUser.getId()}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+        then:
+            response.getStatus() == HttpStatus.OK.value()
+    }
+
+    def "UserController deleteUser should return status 404 NOT FOUND when used with given id is not found"() {
+        when:
+            def response = mockMvc.perform(delete(BASE_PATH + "/1"))
+                .andReturn()
+                .getResponse()
+        then:
+            response.getStatus() == HttpStatus.NOT_FOUND.value()
+    }
+
+    private def createNewUser() {
+        Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
+        return userRepository.save(new User(
+            firstName: "Danil",
+            lastName: "Shyshla",
+            middleName: "Valerevich",
+            sex: "male",
+            phoneNumber: "+375111111111",
+            email: "@gmail.com",
+            country: belarusCountry
+        ))
     }
 }
