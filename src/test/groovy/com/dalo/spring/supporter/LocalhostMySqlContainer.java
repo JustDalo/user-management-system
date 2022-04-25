@@ -27,6 +27,6 @@ public class LocalhostMySqlContainer extends MySQLContainer<LocalhostMySqlContai
 
     @Override
     public void stop() {
-        //do nothing, JVM handles shut down
+
     }
 }
