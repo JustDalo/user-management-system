@@ -63,7 +63,7 @@ class UserCRUDControllerTest extends Specification {
         countryRepository.deleteAll()
     }
 
-    def "UserController findById should return status 200 OK when getting user"() {
+    def "findById should return status 200 OK when getting user"() {
         given:
             User savedUser = createNewUser()
         when:
@@ -75,7 +75,7 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.OK.value()
     }
 
-    def "UserController findById should return status 404 NOT FOUND when getting user that does not exist in database"() {
+    def "findById should return status 404 NOT FOUND when getting user that does not exist in database"() {
         when:
             def response = mockMvc.perform(get(BASE_PATH + "/0")
                     .contentType(MediaType.APPLICATION_JSON))
@@ -85,7 +85,7 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.NOT_FOUND.value()
     }
 
-    def "UserController findAll should return status 200 OK when getting all users"() {
+    def "findAll should return status 200 OK when getting all users"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             userRepository.save(new User(
@@ -115,7 +115,7 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.OK.value()
     }
 
-    def "UserController createUser should return status 201 CREATED when creating new user"() {
+    def "createUser should return status 201 CREATED when creating new user"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             def request = Mock(HttpServletRequest)
@@ -138,7 +138,7 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.CREATED.value()
     }
 
-    def "UserController createUser should return status 400 BAD REQUEST if some of the required properties were missed"() {
+    def "createUser should return status 400 BAD REQUEST if some of the required properties were missed"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             def request = Mock(HttpServletRequest)
@@ -156,7 +156,7 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.BAD_REQUEST.value()
     }
 
-    def "UserController updateUser should return status 200 OK when user is updated"() {
+    def "updateUser should return status 200 OK when user is updated"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             def savedUser = userRepository.save(new User(
@@ -186,7 +186,7 @@ class UserCRUDControllerTest extends Specification {
         response.getStatus() == HttpStatus.OK.value()
     }
 
-    def "UserController updateUser should return status 400 BAD REQUEST when user is updated"() {
+    def "updateUser should return status 400 BAD REQUEST when user is updated"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             def savedUser = userRepository.save(new User(
@@ -214,7 +214,7 @@ class UserCRUDControllerTest extends Specification {
 
 
 
-    def "UserController deleteUser should return status 200 OK when user is deleted"() {
+    def "deleteUser should return status 200 OK when user is deleted"() {
         given:
             User savedUser = createNewUser()
         when:
@@ -226,7 +226,7 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.OK.value()
     }
 
-    def "UserController deleteUser should return status 404 NOT FOUND when used with given id is not found"() {
+    def "deleteUser should return status 404 NOT FOUND when used with given id is not found"() {
         when:
             def response = mockMvc.perform(delete(BASE_PATH + "/1"))
                 .andReturn()
