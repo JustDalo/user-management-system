@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.GenerationType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @Entity
@@ -20,22 +21,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "usr_id")
     private Long id;
+    @NotBlank
     @Column(name = "usr_first_name")
-    @NotNull
     public String firstName;
+    @NotBlank
     @Column(name = "usr_last_name")
-    @NotNull
     public String lastName;
     @Column(name = "usr_middle_name")
     public String middleName;
+    @NotBlank
     @Column(name = "usr_sex")
-    @NotNull
     public String sex;
+    @NotBlank
     @Column(name = "usr_phone_number")
-    @NotNull
     public String phoneNumber;
+    @NotBlank
     @Column(name = "usr_email")
-    @NotNull
     public String email;
     @ManyToOne
     @JoinColumn(name="usr_country_id", referencedColumnName = "ctr_id")

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -37,13 +38,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user, HttpServletRequest httpServletRequest) {
         Country country = countryService.getCountryByIP(requestService.getClientIP(httpServletRequest));
         return new ResponseEntity<User>(userService.createUser(user, country), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable long id, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@PathVariable long id, @Valid @RequestBody User user) {
         return new ResponseEntity<User>(userService.updateUser(user, id), HttpStatus.OK);
     }
 
