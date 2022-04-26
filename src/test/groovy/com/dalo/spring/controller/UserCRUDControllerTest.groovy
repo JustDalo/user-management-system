@@ -138,6 +138,24 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.CREATED.value()
     }
 
+    def "UserController createUser should return status 400 BAD REQUEST if some of the required properties were missed"() {
+        given:
+            Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
+            def request = Mock(HttpServletRequest)
+            ipRequestService.getClientIP(request) >> null
+        when:
+            def response = mockMvc.perform(post(BASE_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUsers.write(new User(
+                    firstName: "Ivan",
+                    country: belarusCountry
+                )).getJson()))
+                .andReturn()
+                .getResponse()
+        then:
+            response.getStatus() == HttpStatus.BAD_REQUEST.value()
+    }
+
     def "UserController updateUser should return status 200 OK when user is updated"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
@@ -167,6 +185,34 @@ class UserCRUDControllerTest extends Specification {
         then:
         response.getStatus() == HttpStatus.OK.value()
     }
+
+    def "UserController updateUser should return status 400 BAD REQUEST when user is updated"() {
+        given:
+            Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
+            def savedUser = userRepository.save(new User(
+                firstName: "Danil",
+                lastName: "Shyshla",
+                middleName: "Valerevich",
+                sex: "male",
+                phoneNumber: "+375111111111",
+                email: "@gmail.com",
+                country: belarusCountry
+            ))
+        when:
+            def response = mockMvc.perform(put(BASE_PATH + "/${savedUser.getId()}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUsers.write(new User(
+                    id: savedUser.getId(),
+                    firstName: "Daniil",
+                    country: belarusCountry
+                )).getJson()))
+                .andReturn()
+                .getResponse()
+        then:
+            response.getStatus() == HttpStatus.BAD_REQUEST.value()
+    }
+
+
 
     def "UserController deleteUser should return status 200 OK when user is deleted"() {
         given:
