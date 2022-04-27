@@ -121,7 +121,7 @@ class UserCRUDControllerTest extends Specification {
             def request = Mock(HttpServletRequest)
             ipRequestService.getClientIP(request) >> null
         when:
-        def response = mockMvc.perform(post(BASE_PATH)
+            def response = mockMvc.perform(post(BASE_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonUsers.write(new User(
                         firstName: "Ivan",
@@ -183,7 +183,7 @@ class UserCRUDControllerTest extends Specification {
                     .andReturn()
                     .getResponse()
         then:
-        response.getStatus() == HttpStatus.OK.value()
+            response.getStatus() == HttpStatus.OK.value()
     }
 
     def "updateUser should return status 400 BAD REQUEST when user is updated"() {
@@ -211,8 +211,6 @@ class UserCRUDControllerTest extends Specification {
         then:
             response.getStatus() == HttpStatus.BAD_REQUEST.value()
     }
-
-
 
     def "deleteUser should return status 200 OK when user is deleted"() {
         given:
