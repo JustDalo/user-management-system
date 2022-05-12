@@ -1,5 +1,6 @@
 package com.dalo.spring.service.impl;
 
+import com.dalo.spring.annotation.Loggable;
 import com.dalo.spring.dao.UserRepository;
 import com.dalo.spring.exception.ResourceNotFoundException;
 import com.dalo.spring.model.Country;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Loggable
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 

@@ -1,5 +1,6 @@
 package com.dalo.spring.service.impl;
 
+import com.dalo.spring.annotation.Loggable;
 import com.dalo.spring.service.IPRequestService;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 public class IPRequestServiceImpl implements IPRequestService {
 
     @Override
+    @Loggable
     public String getClientIP(HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
