@@ -1,6 +1,7 @@
 package com.dalo.spring.controller;
 
 import com.dalo.spring.annotation.Loggable;
+import com.dalo.spring.annotation.Metric;
 import com.dalo.spring.model.Country;
 import com.dalo.spring.model.User;
 import com.dalo.spring.service.CountryService;
@@ -34,7 +35,6 @@ public class UserController {
     }
 
     @GetMapping
-    @Loggable
     public ResponseEntity<List<User>> getAllUsers() {
         return new ResponseEntity<List<User>>(userService.getAllUsers(), HttpStatus.OK);
     }
