@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Loggable
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
