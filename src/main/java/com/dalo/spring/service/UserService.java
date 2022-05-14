@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public interface UserService {
     User getUserById(Long id);
-    @Metric
+    @Metric("getAllUsers")
     List<User> getAllUsers();
     User createUser(User user, Country country);
     User updateUser(User user, Long id);

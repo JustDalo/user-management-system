@@ -1,5 +1,6 @@
 package com.dalo.spring.annotation.impl;
 
+import com.dalo.spring.annotation.AnnotationProcessor;
 import com.dalo.spring.annotation.Metric;
 import io.micrometer.core.instrument.Counter;
 import org.slf4j.Logger;
@@ -20,9 +21,12 @@ import java.util.Map;
 @Component
 public class MetricCustomBeanPostProcessor implements BeanPostProcessor {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private MetricAnnotationProcessor metricAnnotationProcessor;
+    private final AnnotationProcessor metricAnnotationProcessor;
     private Map<String, Class> map = new HashMap<>();
 
+    public MetricCustomBeanPostProcessor(MetricAnnotationProcessor metricAnnotationProcessor) {
+        this.metricAnnotationProcessor = metricAnnotationProcessor;
+    }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -44,11 +48,11 @@ public class MetricCustomBeanPostProcessor implements BeanPostProcessor {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                         if (method.isAnnotationPresent(Metric.class)) {
+                            metricAnnotationProcessor.initCounter(method.getAnnotation(Metric.class).value());
                             metricAnnotationProcessor.process(method);
                             Object retVal = method.invoke(bean, args);
-                            return retVal ;
-                        }
-                        else {
+                            return retVal;
+                        } else {
                             return method.invoke(bean, args);
                         }
                     }

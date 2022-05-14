@@ -144,8 +144,8 @@
 
         <dependency>
             <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-            <version>1.3.11</version>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.7.11</version>
         </dependency>
     </dependencies>
 

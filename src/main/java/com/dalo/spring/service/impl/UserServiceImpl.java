@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Metric
+    @Metric("getAllUsers")
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
