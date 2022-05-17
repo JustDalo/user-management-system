@@ -3,6 +3,7 @@ package com.dalo.spring.annotation.impl;
 import com.dalo.spring.annotation.AnnotationProcessor;
 import com.dalo.spring.annotation.Metric;
 import io.micrometer.core.instrument.Counter;
+import net.sf.cglib.proxy.Enhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -43,6 +44,20 @@ public class MetricCustomBeanPostProcessor implements BeanPostProcessor {
     public Object postProcessAfterInitialization(final Object bean, String beanName) throws BeansException {
         Class beanClass = map.get(beanName);
         if (beanClass != null) {
+            if (beanClass.getInterfaces().length == 0)
+                return Enhancer.create(beanClass, new net.sf.cglib.proxy.InvocationHandler() {
+                    @Override
+                    public Object invoke(Object o, Method method, Object[] args) throws Throwable {
+                        if (method.isAnnotationPresent(Metric.class)) {
+                            metricAnnotationProcessor.initCounter(method.getAnnotation(Metric.class).value());
+                            metricAnnotationProcessor.process(method);
+                            Object retVal = method.invoke(bean, args);
+                            return retVal;
+                        } else {
+                            return method.invoke(bean, args);
+                        }
+                    }
+                });
             return Proxy.newProxyInstance(beanClass.getClassLoader(), beanClass.getInterfaces(),
                 new InvocationHandler() {
                     @Override
