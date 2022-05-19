@@ -21,7 +21,9 @@ public class UserMapper {
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setEmail(user.getEmail());
         dto.setCountry(user.getCountry());
-        dto.setImage(cryptService.cryptToString(user.getImage()));
+        if (user.getImage() != null) {
+            dto.setImage(cryptService.cryptToString(user.getImage()));
+        }
         return dto;
     }
 
@@ -35,7 +37,9 @@ public class UserMapper {
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setEmail(userDto.getEmail());
         user.setCountry(userDto.getCountry());
-        user.setImage(cryptService.cryptToByte(userDto.getImage()));
+        if (userDto.getImage() != null) {
+            user.setImage(cryptService.cryptToByte(userDto.getImage()));
+        }
         return user;
     }
 }
