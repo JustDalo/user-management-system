@@ -82,7 +82,7 @@ class UserServiceTest extends Specification {
         given:
             1 * userRepository.save(users[0]) >> users[0]
         when:
-            UserDto returnedUser = userService.createUser(usersDto[0], COUNTRY)
+            UserDto returnedUser = userService.createUser(usersDto[0], COUNTRY, null)
         then:
             returnedUser == usersDto[0]
     }

@@ -2,10 +2,15 @@ package com.dalo.spring.mapping;
 
 import com.dalo.spring.dto.UserDto;
 import com.dalo.spring.model.User;
+import com.dalo.spring.service.FileUploadService;
+import com.dalo.spring.service.impl.FileUploadServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserMapper {
+    private final FileUploadService fileUploadService = new FileUploadServiceImpl();
+
     public UserDto mapToUserDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -16,6 +21,9 @@ public class UserMapper {
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setEmail(user.getEmail());
         dto.setCountry(user.getCountry());
+        if (user.getImage() != null) {
+            dto.setImage(fileUploadService.sentFile(user.getImage()));
+        }
         return dto;
     }
 
@@ -29,6 +37,9 @@ public class UserMapper {
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setEmail(userDto.getEmail());
         user.setCountry(userDto.getCountry());
+        if (userDto.getImage() != null) {
+            user.setImage(fileUploadService.uploadFile(userDto.getImage()));
+        }
         return user;
     }
 }

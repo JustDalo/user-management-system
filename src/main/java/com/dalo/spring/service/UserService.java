@@ -5,6 +5,7 @@ import com.dalo.spring.dto.UserDto;
 import com.dalo.spring.model.Country;
 import com.dalo.spring.model.User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 

@@ -10,12 +10,9 @@ import com.dalo.spring.model.Country;
 import com.dalo.spring.model.User;
 import com.dalo.spring.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
