@@ -2,10 +2,15 @@ package com.dalo.spring.mapping;
 
 import com.dalo.spring.dto.UserDto;
 import com.dalo.spring.model.User;
+import com.dalo.spring.service.CryptService;
+import com.dalo.spring.service.impl.Base64Encryptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserMapper {
+    private CryptService cryptService = new Base64Encryptor();
+
     public UserDto mapToUserDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -16,6 +21,7 @@ public class UserMapper {
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setEmail(user.getEmail());
         dto.setCountry(user.getCountry());
+        dto.setImage(cryptService.cryptToString(user.getImage()));
         return dto;
     }
 
@@ -29,6 +35,7 @@ public class UserMapper {
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setEmail(userDto.getEmail());
         user.setCountry(userDto.getCountry());
+        user.setImage(cryptService.cryptToByte(userDto.getImage()));
         return user;
     }
 }
