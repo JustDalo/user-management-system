@@ -2,6 +2,7 @@ package com.dalo.spring.controller;
 
 import com.dalo.spring.annotation.Loggable;
 import com.dalo.spring.annotation.Metric;
+import com.dalo.spring.dto.UserDto;
 import com.dalo.spring.model.Country;
 import com.dalo.spring.model.User;
 import com.dalo.spring.service.CountryService;
@@ -30,24 +31,24 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable long id) {
-        return new ResponseEntity<User>(userService.getUserById(id), HttpStatus.OK);
+    public ResponseEntity<UserDto> getUserById(@PathVariable long id) {
+        return new ResponseEntity<UserDto>(userService.getUserById(id), HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return new ResponseEntity<List<User>>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        return new ResponseEntity<List<UserDto>>(userService.getAllUsers(), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto user, HttpServletRequest httpServletRequest) {
         Country country = countryService.getCountryByIP(requestService.getClientIP(httpServletRequest));
-        return new ResponseEntity<User>(userService.createUser(user, country), HttpStatus.CREATED);
+        return new ResponseEntity<UserDto>(userService.createUser(user, country), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable long id, @Valid @RequestBody User user) {
-        return new ResponseEntity<User>(userService.updateUser(user, id), HttpStatus.OK);
+    public ResponseEntity<UserDto> updateUser(@PathVariable long id, @Valid @RequestBody UserDto user) {
+        return new ResponseEntity<UserDto>(userService.updateUser(user, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

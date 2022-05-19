@@ -1,7 +1,9 @@
 package com.dalo.spring.service.impl
 
 import com.dalo.spring.dao.UserRepository
+import com.dalo.spring.dto.UserDto
 import com.dalo.spring.exception.ResourceNotFoundException
+import com.dalo.spring.mapping.UserMapper
 import com.dalo.spring.model.Country
 import com.dalo.spring.model.User
 import spock.lang.Specification
@@ -9,7 +11,7 @@ import spock.lang.Specification
 class UserServiceTest extends Specification {
     def COUNTRY = new Country(id: 1L, name: "Belarus")
 
-    def users = [
+    User[] users = [
         new User(
             id: 1L,
             firstName: "Danil",
@@ -30,9 +32,32 @@ class UserServiceTest extends Specification {
             country: COUNTRY)
     ]
 
+    UserDto[] usersDto = [
+        new UserDto(
+            id: 1L,
+            firstName: "Danil",
+            lastName: "Shyshla",
+            middleName: "Valerevich",
+            sex: "male",
+            phoneNumber: "+375000000000",
+            email: "@gmail.com",
+            country: COUNTRY),
+        new UserDto(
+            id: 2L,
+            firstName: "Daniil",
+            lastName: "Shyshlo",
+            middleName: "Valer'evich",
+            sex: "male",
+            phoneNumber: "+375111111111",
+            email: "@gmail.com",
+            country: COUNTRY)
+    ]
+
     def userRepository = Mock(UserRepository)
 
-    def userService = new UserServiceImpl(userRepository)
+    def userMapper = new UserMapper();
+
+    def userService = new UserServiceImpl(userRepository, userMapper)
 
     def "getAllUsers should return all users"() {
         given:
@@ -40,7 +65,7 @@ class UserServiceTest extends Specification {
         when:
             def resultListOfUsers = userService.getAllUsers()
         then:
-            resultListOfUsers == users
+            resultListOfUsers == usersDto.toList()
     }
 
     def "getUserById should return user with given id"() {
@@ -50,22 +75,22 @@ class UserServiceTest extends Specification {
         when:
             def resultUser = userService.getUserById(1L)
         then:
-            resultUser == users[0]
+            resultUser == usersDto[0]
     }
 
     def "createUser should return created user"() {
         given:
             1 * userRepository.save(users[0]) >> users[0]
         when:
-            User returnedUser = userService.createUser(users[0], COUNTRY)
+            UserDto returnedUser = userService.createUser(usersDto[0], COUNTRY)
         then:
-            returnedUser == users[0]
+            returnedUser == usersDto[0]
     }
 
     def "update user should return updated user"() {
         given:
             def id = 1L
-            def newUser = new User(
+            def newUser = new UserDto(
                 id: 1L,
                 firstName: "Danil",
                 lastName: "Shyshla",
@@ -74,9 +99,9 @@ class UserServiceTest extends Specification {
                 phoneNumber: "+375000000000",
                 email: "@gmail.com",
                 country: COUNTRY)
-            1  * userRepository.findById(id) >> Optional.of(users[0])
+            1 * userRepository.findById(id) >> Optional.of(users[0])
         when:
-            User updatedUser = userService.updateUser(newUser, users[0].getId())
+            UserDto updatedUser = userService.updateUser(newUser, users[0].getId())
         then:
             updatedUser == newUser
     }

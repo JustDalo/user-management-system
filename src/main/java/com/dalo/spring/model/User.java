@@ -6,12 +6,14 @@ import lombok.Data;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Column;
 import javax.persistence.GenerationType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
+import java.sql.Blob;
 
 @Data
 @Entity
@@ -38,6 +40,9 @@ public class User {
     @NotBlank
     @Column(name = "usr_email")
     public String email;
+    @Lob
+    @Column(name = "usr_image")
+    public byte[] image;
     @ManyToOne
     @JoinColumn(name="usr_country_id", referencedColumnName = "ctr_id")
     public Country country;

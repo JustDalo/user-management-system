@@ -3,32 +3,40 @@ package com.dalo.spring.service.impl;
 import com.dalo.spring.annotation.Loggable;
 import com.dalo.spring.annotation.Metric;
 import com.dalo.spring.dao.UserRepository;
+import com.dalo.spring.dto.UserDto;
 import com.dalo.spring.exception.ResourceNotFoundException;
+import com.dalo.spring.mapping.UserMapper;
 import com.dalo.spring.model.Country;
 import com.dalo.spring.model.User;
 import com.dalo.spring.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Loggable
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
-    public User createUser(User user, Country country) {
+    public UserDto createUser(UserDto user, Country country) {
         user.setCountry(country);
-        return userRepository.save(user);
+        return userMapper.mapToUserDto(userRepository.save(userMapper.mapToUser(user)));
     }
 
     @Override
-    public User updateUser(User user, Long id) {
+    public UserDto updateUser(UserDto user, Long id) {
         User existingUser = userRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("User", "Id", id));
+            () -> new ResourceNotFoundException("User", "Id", id));
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setMiddleName(user.getMiddleName());
@@ -38,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(existingUser);
 
-        return existingUser;
+        return userMapper.mapToUserDto(existingUser);
     }
 
     @Override
@@ -48,17 +56,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long id) {
+    public UserDto getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
-            return user.get();
+            return userMapper.mapToUserDto(user.get());
         }
         throw new ResourceNotFoundException("User", "Id", id);
     }
 
     @Override
     @Metric("getAllUsers")
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream().map(userMapper::mapToUserDto).collect(Collectors.toList());
     }
 }
