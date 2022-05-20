@@ -1,17 +1,13 @@
 package com.dalo.spring.controller;
 
-import com.dalo.spring.annotation.Loggable;
-import com.dalo.spring.annotation.Metric;
 import com.dalo.spring.dto.UserDto;
 import com.dalo.spring.model.Country;
 import com.dalo.spring.service.CountryService;
-import com.dalo.spring.service.FileUploadService;
 import com.dalo.spring.service.IPRequestService;
 import com.dalo.spring.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -23,18 +19,15 @@ public class UserController {
     private final UserService userService;
     private final CountryService countryService;
     private final IPRequestService requestService;
-    private final FileUploadService fileUploadService;
 
     public UserController(
         UserService userService,
         CountryService countryService,
-        IPRequestService requestService,
-        FileUploadService fileUploadService
+        IPRequestService requestService
     ) {
         this.userService = userService;
         this.countryService = countryService;
         this.requestService = requestService;
-        this.fileUploadService = fileUploadService;
     }
 
     @GetMapping("/{id}")
