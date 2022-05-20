@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setMiddleName(user.getMiddleName());
         existingUser.setSex(user.getSex());
         existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setEmail(user.email);
+        existingUser.setEmail(user.getEmail());
 
         userRepository.save(existingUser);
 

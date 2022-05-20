@@ -1,7 +1,11 @@
 package com.dalo.spring.model;
 
 import com.sun.istack.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,6 +22,10 @@ import java.sql.Blob;
 @Data
 @Entity
 @Table(name = "user")
+@Builder
+@Getter
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,39 +33,25 @@ public class User {
     private Long id;
     @NotBlank
     @Column(name = "usr_first_name")
-    public String firstName;
+    private  String firstName;
     @NotBlank
     @Column(name = "usr_last_name")
-    public String lastName;
+    private  String lastName;
     @Column(name = "usr_middle_name")
-    public String middleName;
+    private  String middleName;
     @NotBlank
     @Column(name = "usr_sex")
-    public String sex;
+    private  String sex;
     @NotBlank
     @Column(name = "usr_phone_number")
-    public String phoneNumber;
+    private  String phoneNumber;
     @NotBlank
     @Column(name = "usr_email")
-    public String email;
+    private  String email;
     @Lob
     @Column(name = "usr_image")
-    public byte[] image;
+    private  byte[] image;
     @ManyToOne
     @JoinColumn(name="usr_country_id", referencedColumnName = "ctr_id")
-    public Country country;
-
-    public User() {
-    }
-
-    public User(Long id, String firstName, String lastName, String middleName, String sex, String phoneNumber, String email, Country country) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.middleName = middleName;
-        this.sex = sex;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.country = country;
-    }
+    private  Country country;
 }

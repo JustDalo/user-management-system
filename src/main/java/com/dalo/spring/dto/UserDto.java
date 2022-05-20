@@ -1,27 +1,32 @@
 package com.dalo.spring.dto;
 
 import com.dalo.spring.model.Country;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
+@Builder
+@Getter
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserDto {
     private Long id;
     @NotBlank
-    public String firstName;
+    private String firstName;
     @NotBlank
-    public String lastName;
-    public String middleName;
+    private String lastName;
+    private String middleName;
     @NotBlank
-    public String sex;
+    private String sex;
     @NotBlank
-    public String phoneNumber;
+    private String phoneNumber;
     @NotBlank
-    public String email;
-    public String image;
-    public Country country;
-
-    public UserDto() {
-    }
+    private String email;
+    private String image;
+    private Country country;
 }
