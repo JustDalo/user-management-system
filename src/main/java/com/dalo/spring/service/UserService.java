@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface UserService {
     UserDto getUserById(Long id);
     @Metric("getAllUsers")
