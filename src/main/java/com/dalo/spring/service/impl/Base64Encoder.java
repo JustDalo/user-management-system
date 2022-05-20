@@ -9,11 +9,17 @@ import java.util.Base64;
 public class Base64Encoder implements EncoderService {
     @Override
     public byte[] encodeToByte(String baseString) {
-        return Base64.getDecoder().decode(baseString);
+        if (baseString != null) {
+            return Base64.getDecoder().decode(baseString);
+        }
+        return null;
     }
 
     @Override
     public String encodeToString(byte[] image) {
-        return Base64.getEncoder().encodeToString(image);
+        if (image != null) {
+            return Base64.getEncoder().encodeToString(image);
+        }
+        return null;
     }
 }
