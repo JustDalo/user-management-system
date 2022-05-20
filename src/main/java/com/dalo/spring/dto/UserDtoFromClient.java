@@ -1,13 +1,15 @@
 package com.dalo.spring.dto;
 
 import com.dalo.spring.model.Country;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class UserDto {
-    private Long id;
+@Builder
+public class UserDtoFromClient {
+    public Long id;
     @NotBlank
     public String firstName;
     @NotBlank
@@ -19,9 +21,6 @@ public class UserDto {
     public String phoneNumber;
     @NotBlank
     public String email;
-    public String image;
+    public byte[] image;
     public Country country;
-
-    public UserDto() {
-    }
 }

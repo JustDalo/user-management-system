@@ -1,9 +1,9 @@
 package com.dalo.spring.service.impl
 
 import com.dalo.spring.dao.UserRepository
-import com.dalo.spring.dto.UserDto
+import com.dalo.spring.dto.UserDtoFromClient
 import com.dalo.spring.exception.ResourceNotFoundException
-import com.dalo.spring.mapping.UserMapper
+import com.dalo.spring.mapping.FromUserMapper
 import com.dalo.spring.model.Country
 import com.dalo.spring.model.User
 import spock.lang.Specification
@@ -32,8 +32,8 @@ class UserServiceTest extends Specification {
             country: COUNTRY)
     ]
 
-    UserDto[] usersDto = [
-        new UserDto(
+    UserDtoFromClient[] usersDto = [
+        new UserDtoFromClient(
             id: 1L,
             firstName: "Danil",
             lastName: "Shyshla",
@@ -42,7 +42,7 @@ class UserServiceTest extends Specification {
             phoneNumber: "+375000000000",
             email: "@gmail.com",
             country: COUNTRY),
-        new UserDto(
+        new UserDtoFromClient(
             id: 2L,
             firstName: "Daniil",
             lastName: "Shyshlo",
@@ -55,9 +55,9 @@ class UserServiceTest extends Specification {
 
     def userRepository = Mock(UserRepository)
 
-    def userMapper = new UserMapper();
+    def userMapper = new FromUserMapper();
 
-    def userService = new UserServiceImpl(userRepository, userMapper)
+    def userService = new UserServiceImpl(userRepository, userMapper, null)
 
     def "getAllUsers should return all users"() {
         given:
@@ -82,7 +82,7 @@ class UserServiceTest extends Specification {
         given:
             1 * userRepository.save(users[0]) >> users[0]
         when:
-            UserDto returnedUser = userService.createUser(usersDto[0], COUNTRY)
+            UserDtoFromClient returnedUser = userService.createUser(usersDto[0], COUNTRY)
         then:
             returnedUser == usersDto[0]
     }
@@ -90,7 +90,7 @@ class UserServiceTest extends Specification {
     def "update user should return updated user"() {
         given:
             def id = 1L
-            def newUser = new UserDto(
+            def newUser = new UserDtoFromClient(
                 id: 1L,
                 firstName: "Danil",
                 lastName: "Shyshla",
@@ -101,7 +101,7 @@ class UserServiceTest extends Specification {
                 country: COUNTRY)
             1 * userRepository.findById(id) >> Optional.of(users[0])
         when:
-            UserDto updatedUser = userService.updateUser(newUser, users[0].getId())
+            UserDtoFromClient updatedUser = userService.updateUser(newUser, users[0].getId())
         then:
             updatedUser == newUser
     }

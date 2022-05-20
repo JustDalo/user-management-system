@@ -1,8 +1,7 @@
 package com.dalo.spring.controller;
 
-import com.dalo.spring.annotation.Loggable;
-import com.dalo.spring.annotation.Metric;
-import com.dalo.spring.dto.UserDto;
+import com.dalo.spring.dto.UserDtoFromClient;
+import com.dalo.spring.dto.UserDtoToClient;
 import com.dalo.spring.model.Country;
 import com.dalo.spring.model.User;
 import com.dalo.spring.service.CountryService;
@@ -11,6 +10,7 @@ import com.dalo.spring.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -23,32 +23,47 @@ public class UserController {
     private final CountryService countryService;
     private final IPRequestService requestService;
 
-    public UserController(UserService userService, CountryService countryService, IPRequestService requestService) {
-        super();
+    public UserController(
+        UserService userService,
+        CountryService countryService,
+        IPRequestService requestService
+    ) {
         this.userService = userService;
         this.countryService = countryService;
         this.requestService = requestService;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable long id) {
-        return new ResponseEntity<UserDto>(userService.getUserById(id), HttpStatus.OK);
+    public ResponseEntity<UserDtoToClient> getUserById(@PathVariable long id) {
+        return new ResponseEntity<UserDtoToClient>(userService.getUserById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<User> getUserWithImageById(@PathVariable long id) {
+        return new ResponseEntity<User>(userService.getUserWithImageById(id), HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return new ResponseEntity<List<UserDto>>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<List<UserDtoToClient>> getAllUsers() {
+        return new ResponseEntity<List<UserDtoToClient>>(userService.getAllUsers(), HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto user, HttpServletRequest httpServletRequest) {
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<UserDtoFromClient> createUser(
+        @RequestPart("properties") @Valid UserDtoFromClient user,
+        @RequestPart(value = "file", required = false) MultipartFile file,
+        HttpServletRequest httpServletRequest
+    ) {
         Country country = countryService.getCountryByIP(requestService.getClientIP(httpServletRequest));
-        return new ResponseEntity<UserDto>(userService.createUser(user, country), HttpStatus.CREATED);
+        return new ResponseEntity<UserDtoFromClient>(userService.createUser(user, country, file), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable long id, @Valid @RequestBody UserDto user) {
-        return new ResponseEntity<UserDto>(userService.updateUser(user, id), HttpStatus.OK);
+    public ResponseEntity<UserDtoFromClient> updateUser(
+        @PathVariable long id,
+        @Valid @RequestBody UserDtoFromClient user
+    ) {
+        return new ResponseEntity<UserDtoFromClient>(userService.updateUser(user, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
