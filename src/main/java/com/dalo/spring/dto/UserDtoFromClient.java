@@ -1,13 +1,14 @@
 package com.dalo.spring.dto;
 
 import com.dalo.spring.model.Country;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class UserDto {
+@Builder
+public class UserDtoFromClient {
     public Long id;
     @NotBlank
     public String firstName;
@@ -20,6 +21,6 @@ public class UserDto {
     public String phoneNumber;
     @NotBlank
     public String email;
-    public MultipartFile image;
+    public byte[] image;
     public Country country;
 }

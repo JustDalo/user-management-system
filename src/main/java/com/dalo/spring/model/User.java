@@ -1,7 +1,10 @@
 package com.dalo.spring.model;
 
 import com.sun.istack.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,6 +21,9 @@ import java.sql.Blob;
 @Data
 @Entity
 @Table(name = "user")
+@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,17 +53,4 @@ public class User {
     @JoinColumn(name="usr_country_id", referencedColumnName = "ctr_id")
     public Country country;
 
-    public User() {
-    }
-
-    public User(Long id, String firstName, String lastName, String middleName, String sex, String phoneNumber, String email, Country country) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.middleName = middleName;
-        this.sex = sex;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.country = country;
-    }
 }
