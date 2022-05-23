@@ -3,11 +3,13 @@ package com.dalo.spring.dto;
 import com.dalo.spring.model.Country;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
 @Builder
+@EqualsAndHashCode
 public class UserDtoFromClient {
     public Long id;
     @NotBlank

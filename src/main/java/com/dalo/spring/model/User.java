@@ -4,6 +4,7 @@ import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Entity;
@@ -24,6 +25,7 @@ import java.sql.Blob;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

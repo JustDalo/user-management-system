@@ -2,6 +2,7 @@ package com.dalo.spring.dto;
 
 import com.dalo.spring.model.Country;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import java.net.URL;
 
 @Builder
 @Getter
+@EqualsAndHashCode
 public class UserDtoToClient {
     private Long id;
     @NotBlank

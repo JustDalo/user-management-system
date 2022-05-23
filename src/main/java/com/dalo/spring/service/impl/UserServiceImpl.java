@@ -30,10 +30,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDtoFromClient createUser(UserDtoFromClient user, Country country, MultipartFile file) {
         user.setCountry(country);
-        try {
-            user.setImage(file.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (file != null) {
+            try {
+                user.setImage(file.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            user.setImage(null);
         }
         return fromUserMapper.mapToUserDto(userRepository.save(fromUserMapper.mapToUser(user)));
     }

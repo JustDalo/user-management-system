@@ -2,6 +2,7 @@ package com.dalo.spring.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 
 import javax.persistence.Entity;
@@ -19,6 +20,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "country")
+@EqualsAndHashCode
 public class Country {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

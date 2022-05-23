@@ -2,10 +2,14 @@ package com.dalo.spring.service.impl
 
 import com.dalo.spring.dao.UserRepository
 import com.dalo.spring.dto.UserDtoFromClient
+import com.dalo.spring.dto.UserDtoToClient
 import com.dalo.spring.exception.ResourceNotFoundException
 import com.dalo.spring.mapping.FromUserMapper
+import com.dalo.spring.mapping.ToUserMapper
 import com.dalo.spring.model.Country
 import com.dalo.spring.model.User
+import org.springframework.http.MediaType
+import org.springframework.mock.web.MockMultipartFile
 import spock.lang.Specification
 
 class UserServiceTest extends Specification {
@@ -32,32 +36,38 @@ class UserServiceTest extends Specification {
             country: COUNTRY)
     ]
 
-    UserDtoFromClient[] usersDto = [
-        new UserDtoFromClient(
-            id: 1L,
-            firstName: "Danil",
-            lastName: "Shyshla",
-            middleName: "Valerevich",
-            sex: "male",
-            phoneNumber: "+375000000000",
-            email: "@gmail.com",
-            country: COUNTRY),
-        new UserDtoFromClient(
-            id: 2L,
-            firstName: "Daniil",
-            lastName: "Shyshlo",
-            middleName: "Valer'evich",
-            sex: "male",
-            phoneNumber: "+375111111111",
-            email: "@gmail.com",
-            country: COUNTRY)
+    UserDtoToClient[] usersDto = [
+        UserDtoToClient.builder()
+            .id(1L)
+            .firstName("Danil")
+            .lastName("Shyshla")
+            .middleName("Valerevich")
+            .sex("male")
+            .phoneNumber("+375000000000")
+            .email("@gmail.com")
+            .image(new URL("http://localhost/api/users/1/image"))
+            .country(COUNTRY)
+            .build(),
+        UserDtoToClient.builder()
+            .id(2L)
+            .firstName("Daniil")
+            .lastName("Shyshlo")
+            .middleName("Valer'evich")
+            .sex("male")
+            .phoneNumber("+375111111111")
+            .email("@gmail.com")
+            .image(new URL("http://localhost/api/users/2/image"))
+            .country(COUNTRY)
+            .build()
     ]
 
     def userRepository = Mock(UserRepository)
 
-    def userMapper = new FromUserMapper();
+    def fromUserMapper = new FromUserMapper()
 
-    def userService = new UserServiceImpl(userRepository, userMapper, null)
+    def toUserMapper = new ToUserMapper()
+
+    def userService = new UserServiceImpl(userRepository, fromUserMapper, toUserMapper)
 
     def "getAllUsers should return all users"() {
         given:
@@ -65,7 +75,7 @@ class UserServiceTest extends Specification {
         when:
             def resultListOfUsers = userService.getAllUsers()
         then:
-            resultListOfUsers == usersDto.toList()
+            resultListOfUsers.equals(usersDto.toList())
     }
 
     def "getUserById should return user with given id"() {
@@ -75,35 +85,54 @@ class UserServiceTest extends Specification {
         when:
             def resultUser = userService.getUserById(1L)
         then:
-            resultUser == usersDto[0]
+            resultUser.equals(usersDto[0])
     }
 
     def "createUser should return created user"() {
         given:
-            1 * userRepository.save(users[0]) >> users[0]
+            def userDtoFromClient = UserDtoFromClient.builder()
+                .id(1L)
+                .firstName("Danil")
+                .lastName("Shyshla")
+                .middleName("Valerevich")
+                .sex("male")
+                .phoneNumber("+375000000000")
+                .email("@gmail.com")
+                .image("image".getBytes())
+                .country(COUNTRY)
+                .build()
+
+            def imageMultipartFile = new MockMultipartFile(
+                "file",
+                "image.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "image".getBytes()
+            )
+            1 * userRepository.save(fromUserMapper.mapToUser(userDtoFromClient)) >> fromUserMapper.mapToUser(userDtoFromClient)
         when:
-            UserDtoFromClient returnedUser = userService.createUser(usersDto[0], COUNTRY)
+            UserDtoFromClient returnedUser = userService.createUser(userDtoFromClient, COUNTRY, imageMultipartFile)
         then:
-            returnedUser == usersDto[0]
+            returnedUser == userDtoFromClient
     }
 
     def "update user should return updated user"() {
         given:
             def id = 1L
-            def newUser = new UserDtoFromClient(
-                id: 1L,
-                firstName: "Danil",
-                lastName: "Shyshla",
-                middleName: "Valerevich",
-                sex: "male",
-                phoneNumber: "+375000000000",
-                email: "@gmail.com",
-                country: COUNTRY)
+            def userDtoFromClient = UserDtoFromClient.builder()
+                .id(1L)
+                .firstName("Danil")
+                .lastName("Shyshla")
+                .middleName("Valerevich")
+                .sex("male")
+                .phoneNumber("+375000000000")
+                .email("@gmail.com")
+                .country(COUNTRY)
+                .build()
             1 * userRepository.findById(id) >> Optional.of(users[0])
         when:
-            UserDtoFromClient updatedUser = userService.updateUser(newUser, users[0].getId())
+            UserDtoFromClient updatedUser = userService.updateUser(userDtoFromClient, userDtoFromClient.getId())
         then:
-            updatedUser == newUser
+            updatedUser == userDtoFromClient
     }
 
     def "get userById should return ResourceNotFoundException"() {

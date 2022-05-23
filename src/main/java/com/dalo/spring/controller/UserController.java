@@ -8,6 +8,7 @@ import com.dalo.spring.service.CountryService;
 import com.dalo.spring.service.IPRequestService;
 import com.dalo.spring.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,9 +49,9 @@ public class UserController {
         return new ResponseEntity<List<UserDtoToClient>>(userService.getAllUsers(), HttpStatus.OK);
     }
 
-    @PostMapping(consumes = {"multipart/form-data"})
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<UserDtoFromClient> createUser(
-        @RequestPart("properties") @Valid UserDtoFromClient user,
+        @RequestPart @Valid UserDtoFromClient user,
         @RequestPart(value = "file", required = false) MultipartFile file,
         HttpServletRequest httpServletRequest
     ) {
