@@ -1,4 +1,4 @@
-package com.dalo.spring.controller
+package com.dalo.spring.security
 
 import com.dalo.spring.dao.CountryRepository
 import com.dalo.spring.dao.UserRepository
@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.json.JacksonTester
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.http.HttpStatus
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.spock.Testcontainers
 import spock.lang.Shared
@@ -26,16 +26,16 @@ import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = [TestPropertiesInitializer])
 @AutoConfigureMockMvc
-class UserCRUDControllerTest extends Specification {
+class SecurityConfigTest extends Specification {
     @Shared
     MySQLContainer mySqlContainer = LocalhostMySqlContainer.getInstance()
     @Autowired
@@ -65,7 +65,7 @@ class UserCRUDControllerTest extends Specification {
     }
 
     @WithMockUser(authorities = "ADMIN")
-    def "findById should return status 200 OK when getting user"() {
+    def "findById should return status 200 OK for ADMIN"() {
         given:
             User savedUser = createNewUser()
         when:
@@ -77,38 +77,40 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.OK.value()
     }
 
-    @WithMockUser(authorities = "ADMIN")
-    def "findById should return status 404 NOT FOUND when getting user that does not exist in database"() {
+    @WithMockUser(authorities = "USER")
+    def "findById should return status 403 FORBIDDEN for USER"() {
+        given:
+            User savedUser = createNewUser()
         when:
-            def response = mockMvc.perform(get(BASE_PATH + "/0")
-                    .contentType(MediaType.APPLICATION_JSON))
-                    .andReturn()
-                    .getResponse()
+            def response = mockMvc.perform(get(BASE_PATH + "/${savedUser.getId()}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
         then:
-            response.getStatus() == HttpStatus.NOT_FOUND.value()
+            response.getStatus() == HttpStatus.FORBIDDEN.value()
     }
 
     @WithMockUser(authorities = "ADMIN")
-    def "findAll should return status 200 OK when getting all users"() {
+    def "findAll should return status 200 OK for ADMIN"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             userRepository.save(new User(
-                    firstName: "Danil",
-                    lastName: "Shyshla",
-                    middleName: "Valerevich",
-                    sex: "male",
-                    phoneNumber: "+375111111111",
-                    email: "@gmail.com",
-                    country: belarusCountry
+                firstName: "Danil",
+                lastName: "Shyshla",
+                middleName: "Valerevich",
+                sex: "male",
+                phoneNumber: "+375111111111",
+                email: "@gmail.com",
+                country: belarusCountry
             ))
             userRepository.save(new User(
-                    firstName: "Ivan",
-                    lastName: "Ivanov",
-                    middleName: "Ivanovich",
-                    sex: "male",
-                    phoneNumber: "+375000000000",
-                    email: "@gmail.com",
-                    country: belarusCountry
+                firstName: "Ivan",
+                lastName: "Ivanov",
+                middleName: "Ivanovich",
+                sex: "male",
+                phoneNumber: "+375000000000",
+                email: "@gmail.com",
+                country: belarusCountry
             ))
         when:
             def response = mockMvc.perform(get(BASE_PATH)
@@ -119,32 +121,39 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.OK.value()
     }
 
-    @WithMockUser(authorities = "ADMIN")
-    def "createUser should return status 201 CREATED when creating new user"() {
+    @WithMockUser(authorities = "USER")
+    def "findAll should return status 403 FORBIDDEN when getting all users"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
-            def request = Mock(HttpServletRequest)
-            ipRequestService.getClientIP(request) >> null
+            userRepository.save(new User(
+                firstName: "Danil",
+                lastName: "Shyshla",
+                middleName: "Valerevich",
+                sex: "male",
+                phoneNumber: "+375111111111",
+                email: "@gmail.com",
+                country: belarusCountry
+            ))
+            userRepository.save(new User(
+                firstName: "Ivan",
+                lastName: "Ivanov",
+                middleName: "Ivanovich",
+                sex: "male",
+                phoneNumber: "+375000000000",
+                email: "@gmail.com",
+                country: belarusCountry
+            ))
         when:
-            def response = mockMvc.perform(post(BASE_PATH)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonUsers.write(new User(
-                        firstName: "Ivan",
-                        lastName: "Ivanov",
-                        middleName: "Ivanovich",
-                        sex: "male",
-                        phoneNumber: "+375000000000",
-                        email: "@gmail.com",
-                        country: belarusCountry
-                )).getJson()))
+            def response = mockMvc.perform(get(BASE_PATH)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
         then:
-            response.getStatus() == HttpStatus.CREATED.value()
+            response.getStatus() == HttpStatus.FORBIDDEN.value()
     }
 
     @WithMockUser(authorities = "ADMIN")
-    def "createUser should return status 400 BAD REQUEST if some of the required properties were missed"() {
+    def "createUser should return status 201 CREATED for ADMIN"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             def request = Mock(HttpServletRequest)
@@ -154,47 +163,45 @@ class UserCRUDControllerTest extends Specification {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonUsers.write(new User(
                     firstName: "Ivan",
+                    lastName: "Ivanov",
+                    middleName: "Ivanovich",
+                    sex: "male",
+                    phoneNumber: "+375000000000",
+                    email: "@gmail.com",
                     country: belarusCountry
                 )).getJson()))
                 .andReturn()
                 .getResponse()
         then:
-            response.getStatus() == HttpStatus.BAD_REQUEST.value()
+            response.getStatus() == HttpStatus.CREATED.value()
     }
 
     @WithMockUser(authorities = "USER")
-    def "updateUser should return status 200 OK when user is updated"() {
+    def "createUser should return status 201 CREATED for USER"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
-            def savedUser = userRepository.save(new User(
-                firstName: "Danil",
-                lastName: "Shyshla",
-                middleName: "Valerevich",
-                sex: "male",
-                phoneNumber: "+375111111111",
-                email: "@gmail.com",
-                country: belarusCountry
-            ))
+            def request = Mock(HttpServletRequest)
+            ipRequestService.getClientIP(request) >> null
         when:
-            def response = mockMvc.perform(put(BASE_PATH + "/${savedUser.getId()}")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonUsers.write(new User(
-                            id: savedUser.getId(),
-                            firstName: "Daniil",
-                            lastName: "Shyshla",
-                            sex: "male",
-                            phoneNumber: "+375222222222",
-                            email: "@gmail.com",
-                            country: belarusCountry
-                    )).getJson()))
-                    .andReturn()
-                    .getResponse()
+            def response = mockMvc.perform(post(BASE_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUsers.write(new User(
+                    firstName: "Ivan",
+                    lastName: "Ivanov",
+                    middleName: "Ivanovich",
+                    sex: "male",
+                    phoneNumber: "+375000000000",
+                    email: "@gmail.com",
+                    country: belarusCountry
+                )).getJson()))
+                .andReturn()
+                .getResponse()
         then:
-            response.getStatus() == HttpStatus.OK.value()
+            response.getStatus() == HttpStatus.CREATED.value()
     }
 
     @WithMockUser(authorities = "ADMIN")
-    def "updateUser should return status 400 BAD REQUEST when user is updated"() {
+    def "updateUser should return status 200 OK for ADMIN"() {
         given:
             Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
             def savedUser = userRepository.save(new User(
@@ -212,16 +219,51 @@ class UserCRUDControllerTest extends Specification {
                 .content(jsonUsers.write(new User(
                     id: savedUser.getId(),
                     firstName: "Daniil",
+                    lastName: "Shyshla",
+                    sex: "male",
+                    phoneNumber: "+375222222222",
+                    email: "@gmail.com",
                     country: belarusCountry
                 )).getJson()))
                 .andReturn()
                 .getResponse()
         then:
-            response.getStatus() == HttpStatus.BAD_REQUEST.value()
+            response.getStatus() == HttpStatus.OK.value()
+    }
+
+    @WithMockUser(authorities = "USER")
+    def "updateUser should return status 200 OK for USER"() {
+        given:
+            Country belarusCountry = countryRepository.save(new Country(name: "Belarus"))
+            def savedUser = userRepository.save(new User(
+                firstName: "Danil",
+                lastName: "Shyshla",
+                middleName: "Valerevich",
+                sex: "male",
+                phoneNumber: "+375111111111",
+                email: "@gmail.com",
+                country: belarusCountry
+            ))
+        when:
+            def response = mockMvc.perform(put(BASE_PATH + "/${savedUser.getId()}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUsers.write(new User(
+                    id: savedUser.getId(),
+                    firstName: "Daniil",
+                    lastName: "Shyshla",
+                    sex: "male",
+                    phoneNumber: "+375222222222",
+                    email: "@gmail.com",
+                    country: belarusCountry
+                )).getJson()))
+                .andReturn()
+                .getResponse()
+        then:
+            response.getStatus() == HttpStatus.OK.value()
     }
 
     @WithMockUser(authorities = "ADMIN")
-    def "deleteUser should return status 200 OK when user is deleted"() {
+    def "deleteUser should return status 200 OK for ADMIN"() {
         given:
             User savedUser = createNewUser()
         when:
@@ -233,14 +275,17 @@ class UserCRUDControllerTest extends Specification {
             response.getStatus() == HttpStatus.OK.value()
     }
 
-    @WithMockUser(authorities = "ADMIN")
-    def "deleteUser should return status 404 NOT FOUND when used with given id is not found"() {
+    @WithMockUser(authorities = "USER")
+    def "deleteUser should return status 403 FORBIDDEN for USER"() {
+        given:
+            User savedUser = createNewUser()
         when:
-            def response = mockMvc.perform(delete(BASE_PATH + "/1"))
+            def response = mockMvc.perform(delete(BASE_PATH + "/${savedUser.getId()}")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
         then:
-            response.getStatus() == HttpStatus.NOT_FOUND.value()
+            response.getStatus() == HttpStatus.FORBIDDEN.value()
     }
 
     private def createNewUser() {

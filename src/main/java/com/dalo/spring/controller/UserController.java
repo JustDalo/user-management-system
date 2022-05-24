@@ -10,6 +10,7 @@ import com.dalo.spring.service.IPRequestService;
 import com.dalo.spring.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class UserController {
         this.countryService = countryService;
         this.requestService = requestService;
     }
+
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
